@@ -1,4 +1,4 @@
-# MCP Demo 專案說明
+# WeatherForecast 專案說明
 
 ## 專案目標
 
@@ -63,4 +63,3 @@
 - merge 後可自動部署到 Azure
 - agent 能依角色分工處理前端與 DevOps 任務
 - MCP 可用來查詢與操作 GitHub / Azure 的必要功能
-
