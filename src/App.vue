@@ -1,12 +1,19 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const apiUrl = import.meta.env.DEV ? '/cwa-api' : '/api/weather'
 const authKey = import.meta.env.DEV ? import.meta.env.VITE_CWA_AUTH_KEY || '' : ''
 
+const cities = [
+  { label: '台北', locationName: '臺北市' },
+  { label: '八德', locationName: '桃園市' },
+  { label: '中和', locationName: '新北市' },
+]
+
 const loading = ref(false)
 const errorMessage = ref('')
-const locationName = ref('臺北市')
+const selectedCity = ref(cities[0])
+const locationName = computed(() => selectedCity.value.locationName)
 const issueTime = ref('')
 const forecastItems = ref([])
 
@@ -70,6 +77,7 @@ async function loadWeather() {
   }
 }
 
+watch(selectedCity, loadWeather)
 onMounted(loadWeather)
 </script>
 
@@ -78,11 +86,24 @@ onMounted(loadWeather)
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow">中央氣象署開放資料</p>
-        <h1>今日台北天氣</h1>
-        <p class="lead">查詢台北今日的氣溫與降雨機率</p>
+        <h1>{{ selectedCity.label }} 天氣</h1>
+        <p class="lead">查詢今日的氣溫與降雨機率</p>
       </div>
 
       <div class="hero-card">
+        <div class="city-tabs">
+          <button
+            v-for="city in cities"
+            :key="city.label"
+            class="city-tab"
+            :class="{ active: selectedCity.label === city.label }"
+            :disabled="loading"
+            type="button"
+            @click="selectedCity = city"
+          >
+            {{ city.label }}
+          </button>
+        </div>
         <div class="hero-row">
           <span>查詢縣市</span>
           <strong>{{ locationName }}</strong>
@@ -214,6 +235,39 @@ h1 {
 
 .hero-row span {
   color: rgba(245, 249, 255, 0.72);
+}
+
+.city-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.city-tab {
+  flex: 1;
+  border: 1px solid rgba(245, 249, 255, 0.3);
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: transparent;
+  color: rgba(245, 249, 255, 0.7);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.city-tab:hover:not(:disabled) {
+  background: rgba(125, 211, 252, 0.2);
+  color: #f5f9ff;
+}
+
+.city-tab.active {
+  background: #7dd3fc;
+  border-color: #7dd3fc;
+  color: #0c1728;
+}
+
+.city-tab:disabled {
+  opacity: 0.5;
+  cursor: wait;
 }
 
 .action {
