@@ -1,7 +1,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 
-const apiUrl = '/api/weather'
+const apiUrl = import.meta.env.DEV ? '/cwa-api' : '/api/weather'
+const authKey = import.meta.env.DEV ? import.meta.env.VITE_CWA_AUTH_KEY || '' : ''
 
 const loading = ref(false)
 const errorMessage = ref('')
@@ -36,7 +37,16 @@ async function loadWeather() {
 
   try {
     const url = new URL(apiUrl, window.location.origin)
+    if (import.meta.env.DEV) {
+      if (!authKey.trim()) {
+        throw new Error('請先在根目錄 `.env` 設定 `VITE_CWA_AUTH_KEY`。')
+      }
+
+      url.searchParams.set('Authorization', authKey.trim())
+    }
+
     url.searchParams.set('locationName', locationName.value)
+    url.searchParams.set('format', 'JSON')
 
     const response = await fetch(url.toString())
     if (!response.ok) {
