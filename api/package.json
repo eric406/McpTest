@@ -1,0 +1,12 @@
+{
+  "name": "mcp-test-weather-api",
+  "private": true,
+  "version": "0.0.1",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "func start"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.7.0"
+  }
+}

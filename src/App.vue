@@ -1,8 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 
-const authKey = import.meta.env.VITE_CWA_AUTH_KEY || ''
-const apiUrl = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001'
+const apiUrl = '/api/weather'
 
 const loading = ref(false)
 const errorMessage = ref('')
@@ -10,7 +9,7 @@ const locationName = ref('臺北市')
 const issueTime = ref('')
 const forecastItems = ref([])
 
-const hasKey = computed(() => authKey.trim().length > 0)
+const hasData = computed(() => forecastItems.value.length > 0)
 
 function toItems(location) {
   const elements = location?.weatherElement ?? []
@@ -36,14 +35,8 @@ async function loadWeather() {
   errorMessage.value = ''
 
   try {
-    if (!hasKey.value) {
-      throw new Error('請先在 `.env` 設定 `VITE_CWA_AUTH_KEY`。')
-    }
-
-    const url = new URL(apiUrl)
-    url.searchParams.set('Authorization', authKey.trim())
+    const url = new URL(apiUrl, window.location.origin)
     url.searchParams.set('locationName', locationName.value)
-    url.searchParams.set('format', 'JSON')
 
     const response = await fetch(url.toString())
     if (!response.ok) {
@@ -103,7 +96,7 @@ onMounted(loadWeather)
         讀取中央氣象署資料中...
       </div>
 
-      <div v-else>
+      <div v-else-if="hasData">
         <div class="meta">
           <span>資料說明：{{ issueTime }}</span>
           <span>查詢位置：{{ locationName }}</span>
@@ -133,6 +126,10 @@ onMounted(loadWeather)
             <p class="comfort">舒適度：{{ item.comfort }}</p>
           </article>
         </div>
+      </div>
+
+      <div v-else class="state">
+        暫時沒有可顯示的天氣資料。
       </div>
     </section>
   </main>
